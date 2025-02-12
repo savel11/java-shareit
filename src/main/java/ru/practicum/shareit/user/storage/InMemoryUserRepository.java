@@ -12,7 +12,7 @@ import java.util.Optional;
 @Component
 @Qualifier("InMemoryUserRepository")
 public class InMemoryUserRepository implements UserRepository {
-    Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private Long id = 0L;
 
     private Long generatedId() {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     @Qualifier("InMemoryUserRepository")
@@ -36,27 +38,42 @@ public class UserService {
     }
 
     public UserDto create(NewUserDto newUserDto) {
+        log.info("Создание нового пользователя");
+        log.trace("Проверка на дубликат email: " + newUserDto.getEmail());
         if (isDuplicatedEmailForCreate(newUserDto.getEmail())) {
+            log.warn("Пользователь не был создан: Пользователь с таким email уже существует");
             throw new DuplicatedDataException("Почта уже используется");
         }
+        log.trace("Проверка пройдена!");
+        log.info("Пользоваетль успешно создан!");
         User user = userRepository.create(UserMapper.toUser(newUserDto));
         return UserMapper.toUserDto(user);
     }
 
     public void delete(Long id) {
+        log.info("Удаление пользователя с id = " + id);
         if (!userRepository.deleteById(id)) {
+            log.warn("Пользователь не был удален: пользователь с указанным id не существует");
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
         }
+        log.info("Пользоваетль успешно удален!");
     }
 
     public UserDto update(UpdateUserDto updateUserDto, Long id) {
+        log.info("Обновление пользователя с id = " + id);
         Optional<User> optionalUser = userRepository.getById(id);
+        log.trace("Проверка сущестование пользователя");
         if (optionalUser.isEmpty()) {
+            log.warn("Пользователя с id = " + id + " не существует");
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
         }
+        log.trace("Проверка пройдена");
+        log.trace("Проверяем свободно ли новая почта");
         if (isDuplicatedEmailForUpdate(updateUserDto.getEmail(), optionalUser.get())) {
+            log.warn("Пользователь не был обновлен: Пользователь с таким email уже существует");
             throw new DuplicatedDataException("Почта уже используется");
         }
+        log.info("Данные пользователя успешно обновленны");
         User user = optionalUser.get();
         return updateFields(user, updateUserDto);
     }

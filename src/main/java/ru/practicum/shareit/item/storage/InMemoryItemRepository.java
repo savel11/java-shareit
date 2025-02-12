@@ -17,9 +17,6 @@ import java.util.Optional;
 @Component
 @Qualifier("InMemoryItemRepository")
 public class InMemoryItemRepository implements ItemRepository {
-    @Autowired
-    @Qualifier("InMemoryUserRepository")
-    private UserRepository userRepository;
     private final Map<Long, Item> items = new HashMap<>();
     private Long id = 0L;
 

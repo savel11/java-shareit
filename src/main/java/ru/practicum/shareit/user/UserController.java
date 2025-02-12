@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@Valid @RequestBody UpdateUserDto user, @PathVariable @Positive Long userId) {
+    public UserDto update(@Valid @RequestBody UpdateUserDto user, @PathVariable  @Positive Long userId) {
         return userService.update(user, userId);
     }
 
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable @Positive Long userId) {
+    public UserDto getUserById(@PathVariable  @Positive Long userId) {
         return userService.getUserById(userId);
     }
 }
