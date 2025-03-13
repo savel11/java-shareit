@@ -9,9 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.user.User;
 
 
@@ -21,7 +22,8 @@ import java.time.LocalDateTime;
 @Table(name = "requests")
 @Data
 @EqualsAndHashCode(of = {"id"})
-@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
