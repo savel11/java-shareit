@@ -2,7 +2,9 @@ package ru.practicum.shareit.booking.storage;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingShort;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
@@ -33,11 +35,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByItemOwnerIdAndStatus(Long ownerId, BookingStatus status, Sort sort);
 
-    Booking findFirstByItemIdAndEndIsBeforeOrderByEndDesc(Long itemId, LocalDateTime end);
-
-    Booking findFirstByItemIdAndStartIsAfterOrderByStartAsc(Long itemId, LocalDateTime start);
-
     Optional<Booking> findOneByItemIdAndBookerIdAndEndBeforeAndStatus(Long itemId, Long bookerId, LocalDateTime end,
                                                                       BookingStatus status);
+
+    @Query("select new ru.practicum.shareit.booking.model.BookingShort(i.id, MAX(b.end))" +
+            "from Booking as b " +
+            "LEFT JOIN  b.item AS i " +
+            "JOIN  i.owner AS ow " +
+            "where b.end < ?1 and ow.id = ?2 " +
+            "group by i.id")
+    List<BookingShort> getLastBookingByOwnerId(LocalDateTime date, Long ownerId);
+
+    @Query("select new ru.practicum.shareit.booking.model.BookingShort(i.id, MIN(b.start))" +
+            "from Booking as b " +
+            "LEFT JOIN  b.item AS i " +
+            "JOIN  i.owner AS ow " +
+            "where b.start > ?1 and ow.id = ?2 " +
+            "group by i.id")
+    List<BookingShort> getNextBookingByOwnerId(LocalDateTime date, Long ownerId);
 }
 

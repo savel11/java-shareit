@@ -2,7 +2,9 @@ CREATE TABLE IF NOT EXISTS users (
  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  name VARCHAR NOT NULL,
  email VARCHAR NOT NULL,
- CONSTRAINT uq_user_email UNIQUE (email)
+ CONSTRAINT uq_user_email UNIQUE (email),
+ CONSTRAINT length_users_name CHECK (length(name) <= 50),
+ CONSTRAINT length_users_email CHECK (length(email) <= 50)
 );
 
 CREATE TABLE IF NOT EXISTS requests (

@@ -5,12 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingShort;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.error.exception.InvalidFormatException;
 import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.error.exception.NotOwnerException;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithDate;
+import ru.practicum.shareit.item.dto.NewCommentDto;
+import ru.practicum.shareit.item.dto.NewItemDto;
+import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -21,8 +27,12 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -67,8 +77,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDtoWithDate getItemById(Long itemId) {
         log.info("Поиск вещи с id = " + itemId);
         Item item = checkAndGetItem(itemId);
-        List<CommentDto> comments = commentRepository.findByItemId(itemId).stream()
-                .map(CommentMapper::toCommentDto).toList();
+        List<Comment> comments = commentRepository.findByItemId(itemId);
         log.info("Вещь найдена");
         return ItemMapper.itemDtoWithDate(item, null, null, comments);
     }
@@ -79,11 +88,16 @@ public class ItemServiceImpl implements ItemService {
         log.info("Просмотр всех своих вещей владельцем с id = " + ownerId);
         checkAndGetUser(ownerId);
         log.info("Вещи найдены");
-        return itemRepository.findByOwnerId(ownerId).stream().map(item -> ItemMapper.itemDtoWithDate(item,
-                bookingRepository.findFirstByItemIdAndStartIsAfterOrderByStartAsc(item.getId(), LocalDateTime.now()),
-                bookingRepository.findFirstByItemIdAndEndIsBeforeOrderByEndDesc(item.getId(), LocalDateTime.now()),
-                commentRepository.findByItemId(item.getId()).stream()
-                        .map(CommentMapper::toCommentDto).toList())).toList();
+        List<Item> items = itemRepository.findByOwnerId(ownerId);
+        Map<Long, BookingShort> lastBookings = bookingRepository.getLastBookingByOwnerId(LocalDateTime.now(), ownerId).stream()
+                .collect(Collectors.toMap(BookingShort::getItemId, Function.identity()));
+        Map<Long, BookingShort> nextBookings = bookingRepository.getNextBookingByOwnerId(LocalDateTime.now(), ownerId).stream()
+                .collect(Collectors.toMap(BookingShort::getItemId, Function.identity()));
+        Map<Long, List<Comment>> commentMap = commentRepository.getCommentsByOwnerID(ownerId).stream()
+                .collect(Collectors.groupingBy(c -> c.getItem().getId()));
+        return items.stream().map(item -> ItemMapper.itemDtoWithDate(item, nextBookings.getOrDefault(item.getId(),
+                        null), lastBookings.getOrDefault(item.getId(), null),
+                commentMap.getOrDefault(item.getId(), Collections.emptyList()))).toList();
     }
 
     @Override
