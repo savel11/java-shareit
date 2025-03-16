@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import ru.practicum.shareit.error.exception.NotFoundException;
 
@@ -8,10 +8,10 @@ public enum BookingStatus {
     public static BookingStatus getBookingStatus(String str) {
         BookingStatus bookingStatus;
         bookingStatus = switch (str) {
-            case "Waiting", "waiting" -> BookingStatus.WAITING;
-            case "Approved", "approved" -> BookingStatus.APPROVED;
-            case "Rejected", "rejected" -> BookingStatus.REJECTED;
-            case "Canceled", "canceled" -> BookingStatus.CANCELED;
+            case "Waiting", "WAITING" -> BookingStatus.WAITING;
+            case "Approved", "APPROVED" -> BookingStatus.APPROVED;
+            case "Rejected", "REJECTED" -> BookingStatus.REJECTED;
+            case "Canceled", "CANCELED" -> BookingStatus.CANCELED;
             default -> throw new NotFoundException("Статус бронирование не найден");
         };
         return bookingStatus;
@@ -20,10 +20,10 @@ public enum BookingStatus {
     public static String getStringBookingStatus(BookingStatus bookingStatus) {
         String str;
         str = switch (bookingStatus) {
-            case WAITING -> "Waiting";
-            case APPROVED -> "Approved";
-            case REJECTED -> "Rejected";
-            case CANCELED -> "Canceled";
+            case WAITING -> "WAITING";
+            case APPROVED -> "APPROVED";
+            case REJECTED -> "REJECTED";
+            case CANCELED -> "CANCELED";
         };
         return str;
     }
