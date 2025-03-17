@@ -60,7 +60,7 @@ class UserServiceTest {
     @Test
     void create() {
         UserDto user = userService.create(new NewUserDto("A","ema@mail.ru"));
-        TypedQuery<User> query = em.createQuery("SELECT us from User as us where u.email = :email", User.class);
+        TypedQuery<User> query = em.createQuery("SELECT us from User as us where us.email = :email", User.class);
         User result = query.setParameter("email", user.getEmail()).getSingleResult();
 
         assertNotNull(result);
