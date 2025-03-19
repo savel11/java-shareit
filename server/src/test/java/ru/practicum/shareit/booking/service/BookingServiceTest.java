@@ -11,13 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.error.exception.InvalidFormatException;
 import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.error.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemDto;
-import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.NewUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -25,7 +23,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -97,7 +95,7 @@ class BookingServiceTest {
         LocalDateTime end = LocalDateTime.now().plusNanos(100000000);
         NewBookingDto newBookingDto = new NewBookingDto(itemDto.getId(), start, end);
         BookingDto bookingDto = bookingService.create(newBookingDto, userDto.getId());
-        BookingDto result =  bookingService.approve(bookingDto.getId(), userDto.getId(), true);
+        BookingDto result = bookingService.approve(bookingDto.getId(), userDto.getId(), true);
         assertThat(result, notNullValue());
         assertThat(result.getId(), equalTo(bookingDto.getId()));
         assertThat(result.getStatus(), equalTo("APPROVED"));
@@ -105,7 +103,7 @@ class BookingServiceTest {
 
     @Test
     void approveNotOwner() {
-        UserDto  user = userService.create(new NewUserDto("Saiy", "siy.losev@gmail.com"));
+        UserDto user = userService.create(new NewUserDto("Saiy", "siy.losev@gmail.com"));
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusNanos(100000000);
         NewBookingDto newBookingDto = new NewBookingDto(itemDto.getId(), start, end);
@@ -140,9 +138,7 @@ class BookingServiceTest {
         LocalDateTime end = LocalDateTime.now().plusNanos(100000000);
         NewBookingDto newBookingDto = new NewBookingDto(itemDto.getId(), start, end);
         BookingDto bookingDto = bookingService.create(newBookingDto, userDto.getId());
-        UserDto  user = userService.create(new NewUserDto("Saiy", "siy.losev@gmail.com"));
+        UserDto user = userService.create(new NewUserDto("Saiy", "siy.losev@gmail.com"));
         assertThrows(NotOwnerException.class, () -> bookingService.getById(bookingDto.getId(), user.getId()));
     }
-
-
 }
